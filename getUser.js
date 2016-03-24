@@ -15,7 +15,7 @@ function getByEmail (email, callback) {
     var user = JSON.parse(body);
 
     if(!user.email){
-      return callback(new Error('Invalid user'));
+      return callback();
     }
     
     callback(null,   {

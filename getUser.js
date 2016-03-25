@@ -5,6 +5,8 @@
  * - An API call is made to update a user's email or username.
  * 
  * If a user does not exist, callback() with no params should be called (don't throw error)
+ * 
+ * @see https://auth0.com/docs/connections/database/migrating for more info
  **/
  
  function getByEmail (email, callback) {

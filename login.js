@@ -1,3 +1,8 @@
+/**
+ * The Login script to authenticate the user will execute each time a user that is not found in Auth0 database attempts to log in.
+ * 
+ * @see https://auth0.com/docs/connections/database/migrating for more info
+ **/
 function login (email, password, callback) {
   
   request.post({

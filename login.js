@@ -26,8 +26,8 @@ function login (email, password, callback) {
     
     callback(null,   {
       user_id:     user.user.id.toString(),
-      nickname:    user.display,
-      email:       user.email
+      nickname:    email,
+      email:       email
     });
 
   });

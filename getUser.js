@@ -1,4 +1,13 @@
-function getByEmail (email, callback) {
+/**
+ * This is called when:
+ * - A user attempts to sign-up (or is created via API or Auth0 web UI)
+ * - A user clicks on a valid password change confirmation link.
+ * - An API call is made to update a user's email or username.
+ * 
+ * If a user does not exist, callback() with no params should be called (don't throw error)
+ **/
+ 
+ function getByEmail (email, callback) {
   request.post({
     url:  'https://www.dailycred.com/admin/api/user.json',
     qs: {

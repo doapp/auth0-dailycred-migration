@@ -27,7 +27,8 @@ function login (email, password, callback) {
     callback(null,   {
       user_id:     user.user.id.toString(),
       nickname:    email,
-      email:       email
+      email:       email,
+      email_verified: true
     });
 
   });

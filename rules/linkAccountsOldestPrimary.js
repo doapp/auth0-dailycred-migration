@@ -2,10 +2,6 @@
  * This Auth0 rule will link 2 accounts. It will use the oldest account as the primary
  * so that a oAuth user_id in Auth0 does not change from out beneath you
  *
- * You must set rule keys:
- *  AUTH0_API_TOKEN_USER_UPDATE with an API key that has user:read and user:update
- *  AUTH0_SUBDOMAIN
- *
  * @param user
  * @param context
  * @param callback
@@ -16,7 +12,7 @@ function(user, context, callback) {
   console.log('context', context);
 
   if (!user.email_verified) { //dont merge un-verified
-    console.error('email NOT verified, returning');
+    console.error('* email NOT verified, returning');
     return callback(null, user, context);
   }
 
@@ -24,11 +20,13 @@ function(user, context, callback) {
       currUserProvier = currUserTmp[0],
       currUserId      = currUserTmp[1];
 
-  var userApiUrl = 'https://' + configuration.AUTH0_SUBDOMAIN + '.auth0.com/api/v2/users';
+  var userApiUrl   = auth0.baseUrl + '/users',
+      bearerHeader = 'Bearer ' + auth0.accessToken;
+
   request({
       url:     userApiUrl,
       headers: {
-        Authorization: 'Bearer ' + configuration.AUTH0_API_TOKEN_USER_UPDATE
+        Authorization: bearerHeader
       },
       qs:      {
         search_engine: 'v2',
@@ -40,7 +38,7 @@ function(user, context, callback) {
         return callback(err);
       }
 
-      console.log('searh result', body);
+      console.log('search result', body);
       if (response.statusCode !== 200) {
         return callback(new Error(body));
       }
@@ -48,7 +46,7 @@ function(user, context, callback) {
       try {
         var data = JSON.parse(body);
         if (data.length <= 0) {
-          console.log('No other users with same email address. returning');
+          console.log('* No other users with same email address. returning');
           return callback(null, user, context);
         }
 
@@ -59,7 +57,7 @@ function(user, context, callback) {
           });
         });
         if (!currUserInSearchResult) {
-          console.log('current user NOT in search result. Manually adding', user.user_id);
+          console.log('* current user NOT in search result. Manually adding', user.user_id);
           data.push({
             email_verified: true,
             user_id:        user.user_id,
@@ -79,9 +77,15 @@ function(user, context, callback) {
 
         var primaryUser = data.shift();
         console.log('primary user', primaryUser);
+
+        if (data.length <= 0) {
+          console.log('* No other users with same email address.');
+          return callback(null, user, context);
+        }
+
         async.each(data, function(targetUser, cb) {
           if (!targetUser.email_verified) {
-            console.log('targetUser', targetUser, 'does not have verified email. Skipping');
+            console.log('* targetUser', targetUser, 'does not have verified email. Skipping');
             return cb();
           }
 
@@ -89,11 +93,11 @@ function(user, context, callback) {
               provider     = aryTmp[0],
               targetUserId = aryTmp[1];
 
-          console.log('linking', targetUser.user_id);
+          console.log('* linking', targetUser.user_id);
           request.post({
             url:     userApiUrl + '/' + primaryUser.user_id + '/identities',
             headers: {
-              Authorization: 'Bearer ' + configuration.AUTH0_API_TOKEN_USER_UPDATE
+              Authorization: bearerHeader
             },
             json:    {provider: provider, user_id: targetUserId}
           }, function(err, response, body) {

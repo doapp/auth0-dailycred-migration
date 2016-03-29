@@ -1,5 +1,5 @@
 /**
- * This Auth0 rule will link 2 accounts. It will use the oldest account as the primary
+ * This Auth0 rule will link 2 accounts that have same email address. It will use the oldest account as the primary
  * so that a oAuth user_id in Auth0 does not change from out beneath you
  *
  * @param user
